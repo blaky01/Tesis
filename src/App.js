@@ -1,101 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, createContext, useState } from 'react';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+
 import fire from './fire';
-import Login from './Login';
-import Hero from './Hero';
+import LoginPage from './pages/Login';
+import Hero from './pages/Hero';
+import MyCoursesPage from './pages/MyCourses';
 import './App.css';
 
-const App = () => {
-  const [user, setUser] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [hasAccount, setHasAccount] = useState(false);
+const AuthContext = createContext();
 
-  const clearInputs = () => {
-    setEmail('');
-    setPassword('');
-  }
+function ProvideAuth({ children }) {
+  const auth = useProvideAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+}
 
-  const clearErrors = () => {
-    setEmailError('');
-    setPasswordError('');
-  }
+function useAuth() {
+  return useContext(AuthContext);
+}
 
-  const handleLogin = () => {
-    clearErrors();
-    fire
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .catch((err) => {
-        switch (err.code) {
-          case "auth/invalid-email":
-          case "auth/user-disable":
-          case "auth/user-not-found":
-            setEmailError(err.message);
-            break;
-          case "auth/wrong-password":
-            setPasswordError(err.message);
-            break;
-        }
-      });
+function useProvideAuth() {
+  const [user, setUser] = useState(null);
+
+  fire.auth().onAuthStateChanged((user) => {
+    if (user) {
+      setUser(user);
+    } else {
+      setUser('');
+    }
+  });
+  return {
+    user,
   };
+}
 
-  const handleSignup = () => {
-    clearErrors();
-    fire
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .catch((err) => {
-        switch(err.code){
-          case "auth/email-already-in-use":
-          case "auth/invalid-email":
-            setEmailError(err.message);
-            break;
-          case "auth/weak-password":
-            setPasswordError(err.message);
-            break;
-        }
-      });
-  };
+function PrivateRoute({ children, ...rest }) {
+  const auth = useAuth();
 
-  const handleLogout = () => {
-    fire.auth().signOut();
-  }
-
-  const authListener = () => {
-    fire.auth().onAuthStateChanged(user => {
-      if(user){
-        clearInputs();
-        setUser(user);
-      } else {
-        setUser("");
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        auth.user ? (
+          children
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/login',
+              state: { from: location },
+            }}
+          />
+        )
       }
-    });
-  };
+    />
+  );
+}
 
-  useEffect(() => {
-    authListener();
-  }, [])
+const App = () => {
+  const auth = useAuth();
 
   return (
     <div className="App">
-      {user ? (
-        <Hero handleLogout={handleLogout} />
-      ) : (
-        <Login 
-          email={email} 
-          setEmail={setEmail} 
-          password={password} 
-          setPassword={setPassword} 
-          handleLogin={handleLogin}
-          handleSignup={handleSignup}
-          hasAccount={hasAccount}
-          setHasAccount={setHasAccount}
-          emailError={emailError}
-          passwordError={passwordError}
-        />
-      )}
+      <ProvideAuth>
+        <Router>
+          <Switch>
+            <PrivateRoute path="/" exact={true}>
+              <Hero />
+            </PrivateRoute>
+            <PrivateRoute path="/my-courses" exact={true}>
+              <MyCoursesPage />
+            </PrivateRoute>
+            <Route path="/login" exact={true}>
+              <LoginPage />
+            </Route>
+          </Switch>
+        </Router>
+      </ProvideAuth>
     </div>
   );
 };
