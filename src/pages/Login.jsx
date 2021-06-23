@@ -6,7 +6,7 @@
 /* eslint-disable default-case */
 import React, { useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import fire from '../fire';
+import firebase from '../services/firebase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -24,7 +24,7 @@ const Login = () => {
 
   const handleLogin = () => {
     clearErrors();
-    fire
+    firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
@@ -46,7 +46,7 @@ const Login = () => {
 
   const handleSignup = () => {
     clearErrors();
-    fire
+    firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .catch((err) => {

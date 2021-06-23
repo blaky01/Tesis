@@ -1,18 +1,14 @@
+/* eslint-disable react/prop-types */
 import React, { useContext, createContext, useState } from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
-import fire from './fire';
+import firebase from './services/firebase';
 import LoginPage from './pages/Login';
 import Hero from './pages/Hero';
 import MyCoursesPage from './pages/MyCourses';
 import './App.css';
 
 const AuthContext = createContext();
-
-function ProvideAuth({ children }) {
-  const auth = useProvideAuth();
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-}
 
 function useAuth() {
   return useContext(AuthContext);
@@ -21,16 +17,16 @@ function useAuth() {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
 
-  fire.auth().onAuthStateChanged((user) => {
-    if (user) {
-      setUser(user);
-    } else {
-      setUser('');
-    }
-  });
+  firebase.auth().onAuthStateChanged((userData) => setUser(userData));
   return {
     user,
   };
+}
+
+
+function ProvideAuth({ children }) {
+  const auth = useProvideAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 }
 
 function PrivateRoute({ children, ...rest }) {
@@ -55,21 +51,18 @@ function PrivateRoute({ children, ...rest }) {
   );
 }
 
-const App = () => {
-  const auth = useAuth();
-
-  return (
+const App = () => (
     <div className="App">
       <ProvideAuth>
         <Router>
           <Switch>
-            <PrivateRoute path="/" exact={true}>
+            <PrivateRoute path="/" exact>
               <Hero />
             </PrivateRoute>
-            <PrivateRoute path="/my-courses" exact={true}>
+            <PrivateRoute path="/my-courses" exact>
               <MyCoursesPage />
             </PrivateRoute>
-            <Route path="/login" exact={true}>
+            <Route path="/login" exact>
               <LoginPage />
             </Route>
           </Switch>
@@ -77,6 +70,5 @@ const App = () => {
       </ProvideAuth>
     </div>
   );
-};
 
 export default App;

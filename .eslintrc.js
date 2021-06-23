@@ -20,5 +20,6 @@ module.exports = {
     'prettier'
   ],
   rules: {
+    'react/jsx-props-no-spreading': 0
   },
 };
