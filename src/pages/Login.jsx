@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import firebase from '../services/firebase';
+import { Button } from '../components/Button';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -82,9 +83,9 @@ const Login = () => {
         <div className="btnContainer">
           {hasAccount ? (
             <>
-              <button onClick={handleLogin}>
-                <b>Sign in</b>
-              </button>
+              <Button onClick={handleLogin}>
+                Sign in
+              </Button>
               <p>
                 Don't have an account ?
                 <span onClick={() => setHasAccount(!hasAccount)}>
@@ -94,13 +95,13 @@ const Login = () => {
             </>
           ) : (
             <>
-              <button onClick={handleSignup}>
-                <b>Sign up</b>
-              </button>
+              <Button onClick={handleSignup}>
+                Sign up
+              </Button>
               <p>
                 Have an account ?{' '}
                 <span onClick={() => setHasAccount(!hasAccount)}>
-                  <b>Sign in</b>
+                  <b> Sign in</b>
                 </span>
               </p>
             </>

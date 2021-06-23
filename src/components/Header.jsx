@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import firebase from '../services/firebase';
+import { Button } from './Button';
 
 export const Header = () => {
   const handleLogout = () => {
@@ -8,30 +9,21 @@ export const Header = () => {
   };
 
   return (
-  <nav>
-    <h2>Welcome</h2>
-    <list>
-      <Link to="/">
-        <button type="button">
-          <h6>Home</h6>
-        </button>
-      </Link>
-      <Link to="/my-courses">
-        <button type="button">
-          <h6>My courses</h6>
-        </button>
-      </Link>
-      <button type="button">
-        <h6>Assignments</h6>
-      </button>
-      <button type="button">
-        <h6>Report</h6>
-      </button>
-      <button type="button" onClick={handleLogout}>
-        <h6>Logout</h6>
-      </button>
-    </list>
-  </nav>
-)};
+    <nav>
+      <h2>Welcome</h2>
+      <list>
+        <Link to="/">
+          <Button>Home</Button>
+        </Link>
+        <Link to="/my-courses">
+          <Button>My courses</Button>
+        </Link>
+        <Button>Assignments</Button>
+        <Button>Report</Button>
+        <Button onClick={handleLogout}>Logout</Button>
+      </list>
+    </nav>
+  );
+};
 
 export default Header;
